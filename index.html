@@ -208,10 +208,23 @@ function flipCard(){
 }
 
 function nextCard(e){
-  e.stopPropagation();
+  if(e) e.stopPropagation();
+
   resetTimer();
-  document.getElementById("cardInner").classList.remove("flipped");
-  document.getElementById("cardContent").innerHTML = generateCard();
+
+  const cardContent = document.getElementById("cardContent");
+  const cardInner = document.getElementById("cardInner");
+
+  cardInner.classList.remove("flipped");
+
+  let novaCarta = generateCard();
+
+  // GARANTE QUE NUNCA FIQUE VAZIO
+  if(!novaCarta || novaCarta.trim() === ""){
+    novaCarta = "ERRO AO GERAR CARTA";
+  }
+
+  cardContent.innerHTML = novaCarta;
 }
 
 // swipe
