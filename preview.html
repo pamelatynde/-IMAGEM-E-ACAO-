@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imagem & Ação</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:black;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+
+/* GARANTE QUE A CARTA APAREÇA */
+.card {
+  width:320px;
+  height:480px;
+  perspective:1000px;
+  margin-bottom:50px;
+}
+
+.inner {
+  width:100%;
+  height:100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  position:relative;
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+.front, .back {
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:20px;
+  backface-visibility:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  box-sizing:border-box;
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.front {
+  background:white;
+  color:black;
+  font-size:26px;
+  font-weight:bold;
+}
+
+.back {
+  background:white;
+  color:black;
+  transform: rotateY(180deg);
+  flex-direction:column;
+  align-items:flex-start;
+  font-size:18px;
+  line-height:1.8;
+}
+
+.controls {
+  display:flex;
+  gap:20px;
+}
+
+button {
+  padding:12px 20px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.start {
+  background:#00c853;
+  color:white;
+}
+
+.next {
+  background:#2962ff;
+  color:white;
+}
+
+.timer {
+  color:white;
+  margin-top:20px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card" onclick="flipCard()">
+  <div id="cardInner" class="inner">
+    <div class="front">IMAGEM & AÇÃO</div>
+    <div id="cardContent" class="back"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="start" onclick="startTimer(event)">▶️ Iniciar</button>
+  <button class="next" onclick="nextCard(event)">➡️ Próxima</button>
+</div>
+
+<div class="timer" id="timer">⏱️ 60s</div>
+
+<audio id="alarm">
+  <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
+</audio>
+
+<script>
+
+let usedWords = new Set();
+let time = 60;
+let interval;
+
+function startTimer(e){
+  e.stopPropagation();
+
+  if(interval) return;
+
+  interval = setInterval(()=>{
+    time--;
+    document.getElementById("timer").innerText = "⏱️ " + time + "s";
+
+    if(time <= 0){
+      clearInterval(interval);
+      interval = null;
+      document.getElementById("timer").innerText = "⏱️ TEMPO!";
+      document.getElementById("alarm").play();
+    }
+  },1000);
+}
+
+function resetTimer(){
+  clearInterval(interval);
+  interval = null;
+  time = 60;
+  document.getElementById("timer").innerText = "⏱️ 60s";
+}
+
+function randomItem(arr){
+  let item;
+  do {
+    item = arr[Math.floor(Math.random()*arr.length)];
+  } while(usedWords.has(item));
+  usedWords.add(item);
+  return item;
+}
+
+const pessoas = [
+"NEYMAR","PELÉ","ANITTA","BEYONCÉ",
+"REI","PRESIDENTE","MÉDICO",
+"LEÃO","GATO","CACHORRO",
+"BRASIL","FRANÇA","RECIFE",
+"SHOPPING","HOSPITAL","ESCOLA","CEMITÉRIO"
+];
+
+const objetos = ["CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS","CHAVE"];
+const acoes = ["CORRER","SENTAR","DEITAR","ANDAR","PULAR","SUBIR ESCADA"];
+const dificil = ["GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","TONELADA"];
+const lazer = ["CHUTEIRA","TRUCO","ESCONDE-ESCONDE","FUTEBOL"];
+const mix = ["QUADRADO","CASTELO","CALDEIRÃO","PINTURA","ESPORA"];
+
+function generateCard(){
+  return `
+P - ${randomItem(pessoas)}<br>
+O - ${randomItem(objetos)}<br>
+A - ${randomItem(acoes)}<br>
+D - ${randomItem(dificil)}<br>
+L - ${randomItem(lazer)}<br>
+M - ${randomItem(mix)}
+`;
+}
+
+function flipCard(){
+  document.getElementById("cardInner").classList.toggle("flipped");
+}
+
+function nextCard(e){
+  e.stopPropagation();
+  resetTimer();
+  document.getElementById("cardInner").classList.remove("flipped");
+  document.getElementById("cardContent").innerHTML = generateCard();
+}
+
+nextCard();
+
+</script>
+
+</body>
+</html>
