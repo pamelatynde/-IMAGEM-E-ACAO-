@@ -10,18 +10,23 @@ body {
   margin:0;
   font-family: Arial;
   background:black;
+
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
+
   min-height:100vh;
+  padding:20px;
+  box-sizing:border-box;
 }
 
 .card {
-  width:320px;
+  width:90vw;
+  max-width:320px;
   height:480px;
   perspective:1000px;
-  margin-bottom:60px;
+  margin-bottom:30px;
 }
 
 .inner {
@@ -52,23 +57,25 @@ body {
   align-items:center;
   font-size:22px;
   font-weight:bold;
+  letter-spacing:2px;
 }
 
 .back {
   background:white;
   transform: rotateY(180deg);
-  padding:25px;
+  padding:30px 25px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   border: 4px solid #d4af37;
 }
 
-/* LINHAS DA CARTA */
+/* LINHAS */
 .linha {
   display:flex;
   align-items:center;
-  margin:8px 0;
+  margin:10px 0;
+  padding:0 5px;
 }
 
 .letra {
@@ -81,14 +88,16 @@ body {
   justify-content:center;
   align-items:center;
   font-weight:bold;
-  margin-right:10px;
+  flex-shrink:0;
 }
 
 .palavra {
   flex:1;
   border-bottom:2px solid #ccc;
-  padding-bottom:3px;
-  font-size:18px;
+  padding-bottom:5px;
+  margin-left:10px;
+  font-size:17px;
+  word-break:break-word;
 }
 
 .controls {
@@ -120,6 +129,17 @@ button {
   margin-top:20px;
   font-size:18px;
 }
+
+/* RESPONSIVO */
+@media (max-width: 400px){
+  .card {
+    height:440px;
+  }
+
+  .palavra {
+    font-size:16px;
+  }
+}
 </style>
 </head>
 
@@ -139,10 +159,12 @@ button {
 
 <div class="timer" id="timer">⏱️ 60s</div>
 
+<!-- SOM FINAL -->
 <audio id="alarm">
   <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
 </audio>
 
+<!-- SOM TENSÃO -->
 <audio id="warning">
   <source src="https://www.soundjay.com/button/beep-07.wav">
 </audio>
@@ -159,6 +181,7 @@ function startTimer(e){
   const alarm = document.getElementById("alarm");
   const warning = document.getElementById("warning");
 
+  // desbloqueia áudio
   alarm.play().then(()=>alarm.pause());
   warning.play().then(()=>warning.pause());
 
@@ -168,6 +191,7 @@ function startTimer(e){
     time--;
     document.getElementById("timer").innerText = "⏱️ " + time + "s";
 
+    // tensão últimos 10s
     if(time <= 10 && time > 0){
       warning.currentTime = 0;
       warning.play();
