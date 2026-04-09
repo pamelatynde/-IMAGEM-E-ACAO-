@@ -42,29 +42,53 @@ body {
   height:100%;
   border-radius:20px;
   backface-visibility:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-  box-sizing:border-box;
   box-shadow: 0 0 20px rgba(255,255,255,0.2);
 }
 
 .front {
   background:white;
-  color:black;
-  font-size:26px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
   font-weight:bold;
 }
 
 .back {
   background:white;
-  color:black;
   transform: rotateY(180deg);
+  padding:25px;
+  display:flex;
   flex-direction:column;
-  align-items:flex-start;
+  justify-content:center;
+  border: 4px solid #d4af37;
+}
+
+/* LINHAS DA CARTA */
+.linha {
+  display:flex;
+  align-items:center;
+  margin:8px 0;
+}
+
+.letra {
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#d4af37;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  margin-right:10px;
+}
+
+.palavra {
+  flex:1;
+  border-bottom:2px solid #ccc;
+  padding-bottom:3px;
   font-size:18px;
-  line-height:1.8;
 }
 
 .controls {
@@ -103,7 +127,7 @@ button {
 
 <div class="card" onclick="flipCard()">
   <div id="cardInner" class="inner">
-    <div class="front">IMAGEM & AÇÃO</div>
+    <div class="front">IMAGEM & AÇÃO 🎭</div>
     <div id="cardContent" class="back"></div>
   </div>
 </div>
@@ -119,6 +143,10 @@ button {
   <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
 </audio>
 
+<audio id="warning">
+  <source src="https://www.soundjay.com/button/beep-07.wav">
+</audio>
+
 <script>
 
 let usedWords = new Set();
@@ -128,17 +156,29 @@ let interval;
 function startTimer(e){
   e.stopPropagation();
 
+  const alarm = document.getElementById("alarm");
+  const warning = document.getElementById("warning");
+
+  alarm.play().then(()=>alarm.pause());
+  warning.play().then(()=>warning.pause());
+
   if(interval) return;
 
   interval = setInterval(()=>{
     time--;
     document.getElementById("timer").innerText = "⏱️ " + time + "s";
 
+    if(time <= 10 && time > 0){
+      warning.currentTime = 0;
+      warning.play();
+    }
+
     if(time <= 0){
       clearInterval(interval);
       interval = null;
       document.getElementById("timer").innerText = "⏱️ TEMPO!";
-      document.getElementById("alarm").play();
+      alarm.currentTime = 0;
+      alarm.play();
     }
   },1000);
 }
@@ -163,44 +203,30 @@ function randomItem(arr){
   return item;
 }
 
-// P (completo como você pediu)
-const pessoas = [
-"NEYMAR","PELÉ","ANITTA","BEYONCÉ","MICHAEL JACKSON",
-"REI","PRESIDENTE","MÉDICO","PROFESSOR",
-"LEÃO","GATO","CACHORRO","ELEFANTE","TIGRE",
-"BRASIL","FRANÇA","JAPÃO","ARGENTINA","RECIFE",
-"SHOPPING","HOSPITAL","ESCOLA","CEMITÉRIO","AEROPORTO"
-];
+const pessoas = ["NEYMAR","PELÉ","ANITTA","BEYONCÉ","MICHAEL JACKSON"];
+const objetos = ["CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS"];
+const acoes = ["CORRER","SENTAR","DEITAR","ANDAR","PULAR"];
+const dificil = ["GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","ESPAÇO"];
+const lazer = ["FUTEBOL","NADAR","VIAJAR","TRUCO"];
+const mix = ["CASTELO","LABIRINTO","ESTÁTUA","PINTURA"];
 
-const objetos = [
-"CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS","CHAVE","MESA","MOCHILA"
-];
-
-const acoes = [
-"CORRER","SENTAR","DEITAR","ANDAR","PULAR","SUBIR ESCADA","ABRIR PORTA"
-];
-
-const dificil = [
-"GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","ESPAÇO","EQUILÍBRIO","TONELADA"
-];
-
-const lazer = [
-"CHUTEIRA","TRUCO","ESCONDE-ESCONDE","FUTEBOL","NADAR","VIAJAR"
-];
-
-const mix = [
-"QUADRADO","CASTELO","CALDEIRÃO","PINTURA","ESPORA","ESTÁTUA","LABIRINTO"
-];
+function linha(letra, palavra){
+  return `
+  <div class="linha">
+    <div class="letra">${letra}</div>
+    <div class="palavra">${palavra}</div>
+  </div>`;
+}
 
 function generateCard(){
   return `
-P - ${randomItem(pessoas)}<br>
-O - ${randomItem(objetos)}<br>
-A - ${randomItem(acoes)}<br>
-D - ${randomItem(dificil)}<br>
-L - ${randomItem(lazer)}<br>
-M - ${randomItem(mix)}
-`;
+    ${linha("P", randomItem(pessoas))}
+    ${linha("O", randomItem(objetos))}
+    ${linha("A", randomItem(acoes))}
+    ${linha("D", randomItem(dificil))}
+    ${linha("L", randomItem(lazer))}
+    ${linha("M", randomItem(mix))}
+  `;
 }
 
 function flipCard(){
@@ -216,30 +242,8 @@ function nextCard(e){
   const cardInner = document.getElementById("cardInner");
 
   cardInner.classList.remove("flipped");
-
-  let novaCarta = generateCard();
-
-  // GARANTE QUE NUNCA FIQUE VAZIO
-  if(!novaCarta || novaCarta.trim() === ""){
-    novaCarta = "ERRO AO GERAR CARTA";
-  }
-
-  cardContent.innerHTML = novaCarta;
+  cardContent.innerHTML = generateCard();
 }
-
-// swipe
-let startX = 0;
-
-document.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-  if(startX - endX > 50){
-    nextCard({stopPropagation:()=>{}});
-  }
-});
 
 nextCard();
 
