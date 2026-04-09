@@ -8,7 +8,7 @@
 <style>
 body {
   margin:0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background:black;
   display:flex;
   flex-direction:column;
@@ -17,12 +17,11 @@ body {
   min-height:100vh;
 }
 
-/* GARANTE QUE A CARTA APAREÇA */
 .card {
   width:320px;
   height:480px;
   perspective:1000px;
-  margin-bottom:50px;
+  margin-bottom:60px;
 }
 
 .inner {
@@ -153,26 +152,45 @@ function resetTimer(){
 
 function randomItem(arr){
   let item;
+  let attempts = 0;
+
   do {
     item = arr[Math.floor(Math.random()*arr.length)];
-  } while(usedWords.has(item));
+    attempts++;
+  } while(usedWords.has(item) && attempts < 50);
+
   usedWords.add(item);
   return item;
 }
 
+// P (completo como você pediu)
 const pessoas = [
-"NEYMAR","PELÉ","ANITTA","BEYONCÉ",
-"REI","PRESIDENTE","MÉDICO",
-"LEÃO","GATO","CACHORRO",
-"BRASIL","FRANÇA","RECIFE",
-"SHOPPING","HOSPITAL","ESCOLA","CEMITÉRIO"
+"NEYMAR","PELÉ","ANITTA","BEYONCÉ","MICHAEL JACKSON",
+"REI","PRESIDENTE","MÉDICO","PROFESSOR",
+"LEÃO","GATO","CACHORRO","ELEFANTE","TIGRE",
+"BRASIL","FRANÇA","JAPÃO","ARGENTINA","RECIFE",
+"SHOPPING","HOSPITAL","ESCOLA","CEMITÉRIO","AEROPORTO"
 ];
 
-const objetos = ["CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS","CHAVE"];
-const acoes = ["CORRER","SENTAR","DEITAR","ANDAR","PULAR","SUBIR ESCADA"];
-const dificil = ["GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","TONELADA"];
-const lazer = ["CHUTEIRA","TRUCO","ESCONDE-ESCONDE","FUTEBOL"];
-const mix = ["QUADRADO","CASTELO","CALDEIRÃO","PINTURA","ESPORA"];
+const objetos = [
+"CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS","CHAVE","MESA","MOCHILA"
+];
+
+const acoes = [
+"CORRER","SENTAR","DEITAR","ANDAR","PULAR","SUBIR ESCADA","ABRIR PORTA"
+];
+
+const dificil = [
+"GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","ESPAÇO","EQUILÍBRIO","TONELADA"
+];
+
+const lazer = [
+"CHUTEIRA","TRUCO","ESCONDE-ESCONDE","FUTEBOL","NADAR","VIAJAR"
+];
+
+const mix = [
+"QUADRADO","CASTELO","CALDEIRÃO","PINTURA","ESPORA","ESTÁTUA","LABIRINTO"
+];
 
 function generateCard(){
   return `
@@ -195,6 +213,20 @@ function nextCard(e){
   document.getElementById("cardInner").classList.remove("flipped");
   document.getElementById("cardContent").innerHTML = generateCard();
 }
+
+// swipe
+let startX = 0;
+
+document.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e => {
+  let endX = e.changedTouches[0].clientX;
+  if(startX - endX > 50){
+    nextCard({stopPropagation:()=>{}});
+  }
+});
 
 nextCard();
 
