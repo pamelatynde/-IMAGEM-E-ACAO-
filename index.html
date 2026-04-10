@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -70,7 +71,6 @@ body {
   border: 4px solid #d4af37;
 }
 
-/* LINHAS */
 .linha {
   display:flex;
   align-items:center;
@@ -130,7 +130,6 @@ button {
   font-size:18px;
 }
 
-/* RESPONSIVO */
 @media (max-width: 400px){
   .card {
     height:440px;
@@ -159,21 +158,43 @@ button {
 
 <div class="timer" id="timer">⏱️ 60s</div>
 
-<!-- SOM FINAL -->
 <audio id="alarm">
   <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
 </audio>
 
-<!-- SOM TENSÃO -->
 <audio id="warning">
   <source src="https://www.soundjay.com/button/beep-07.wav">
 </audio>
 
 <script>
 
-let usedWords = new Set();
 let time = 60;
 let interval;
+
+// LISTAS ORIGINAIS
+const pessoasBase = ["NEYMAR","PELÉ","ANITTA","BEYONCÉ","MICHAEL JACKSON"];
+const objetosBase = ["CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS"];
+const acoesBase = ["CORRER","SENTAR","DEITAR","ANDAR","PULAR"];
+const dificilBase = ["GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","ESPAÇO"];
+const lazerBase = ["FUTEBOL","NADAR","VIAJAR","TRUCO"];
+const mixBase = ["CASTELO","LABIRINTO","ESTÁTUA","PINTURA"];
+
+// CÓPIAS QUE SERÃO MODIFICADAS
+let pessoas = [...pessoasBase];
+let objetos = [...objetosBase];
+let acoes = [...acoesBase];
+let dificil = [...dificilBase];
+let lazer = [...lazerBase];
+let mix = [...mixBase];
+
+function resetWords(){
+  pessoas = [...pessoasBase];
+  objetos = [...objetosBase];
+  acoes = [...acoesBase];
+  dificil = [...dificilBase];
+  lazer = [...lazerBase];
+  mix = [...mixBase];
+}
 
 function startTimer(e){
   e.stopPropagation();
@@ -181,7 +202,6 @@ function startTimer(e){
   const alarm = document.getElementById("alarm");
   const warning = document.getElementById("warning");
 
-  // desbloqueia áudio
   alarm.play().then(()=>alarm.pause());
   warning.play().then(()=>warning.pause());
 
@@ -191,7 +211,6 @@ function startTimer(e){
     time--;
     document.getElementById("timer").innerText = "⏱️ " + time + "s";
 
-    // tensão últimos 10s
     if(time <= 10 && time > 0){
       warning.currentTime = 0;
       warning.play();
@@ -215,24 +234,12 @@ function resetTimer(){
 }
 
 function randomItem(arr){
-  let item;
-  let attempts = 0;
-
-  do {
-    item = arr[Math.floor(Math.random()*arr.length)];
-    attempts++;
-  } while(usedWords.has(item) && attempts < 50);
-
-  usedWords.add(item);
+  if(arr.length === 0) return "ACABOU";
+  const index = Math.floor(Math.random() * arr.length);
+  const item = arr[index];
+  arr.splice(index, 1); // REMOVE para não repetir
   return item;
 }
-
-const pessoas = ["NEYMAR","PELÉ","ANITTA","BEYONCÉ","MICHAEL JACKSON"];
-const objetos = ["CADEIRA","CELULAR","PORTA","GARRAFA","ÓCULOS"];
-const acoes = ["CORRER","SENTAR","DEITAR","ANDAR","PULAR"];
-const dificil = ["GRAVIDADE","INVISÍVEL","ILUSÃO","TEMPO","ESPAÇO"];
-const lazer = ["FUTEBOL","NADAR","VIAJAR","TRUCO"];
-const mix = ["CASTELO","LABIRINTO","ESTÁTUA","PINTURA"];
 
 function linha(letra, palavra){
   return `
@@ -262,6 +269,9 @@ function nextCard(e){
 
   resetTimer();
 
+  // se acabar palavras, reseta tudo
+  if(pessoas.length === 0) resetWords();
+
   const cardContent = document.getElementById("cardContent");
   const cardInner = document.getElementById("cardInner");
 
@@ -275,3 +285,4 @@ nextCard();
 
 </body>
 </html>
+```
